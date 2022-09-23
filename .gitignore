@@ -1,7 +1,4 @@
 /credentials.py
 /ds_em_clusterizacao_C7_mdfi_deploy.ipynb
-<<<<<<< HEAD
 .ipynb_checkpoints/
-=======
-.ipynb_checkpoints/
->>>>>>> 30e94ee0991bde602897c77aa02dca65cb65d0df
+features/
