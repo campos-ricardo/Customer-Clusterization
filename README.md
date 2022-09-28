@@ -31,8 +31,8 @@ Por esse motivo, o time de marketing requisitou ao time de dados uma seleção d
   <li> Ajuste fino dos hiper parâmetros</li>
   <li> Treinamento do modelo</li>
   <li> Análise dos Clusters </li>
+  <li> Visualização do banco de dados</li>
   <li> EDA -  Pós Clusterização</li>
-  <li> Preparação para produção</li>
 </ul>
 </p>
 
@@ -61,15 +61,27 @@ Por esse motivo, o time de marketing requisitou ao time de dados uma seleção d
 </p>
 <p>Nesta iteração do projeto, os dados faltantes gerados nesta etapa foram deletados porque a quantidade é bem pequena em relação ao total de clientes.</p>
 
+### EDA
+<p>A EDA será dividida em duas partes, uma antes da clusterização e uma após a clusterização. Porque o levantamento de hipóteses será realizado em cima dos clusters criados.
+Para a primeira parte, uma análise univariável foi realziada com o auxílio do pacote Profiling que gera informação descritivas sobre as colunas de um dataset, como desvio padrão, variância, percentis e outras métricas. Para a análise bivariável, uma série de gráficos par a par entre as colunas do data set foi gerada para que pudesse analisar a dispersão dos dados em relação a outros e se serão formados bons clusters.
+</p>
+<p> Uma outra etapa importante para a EDA deste projeto, foi a  criação de quatro diferentes espaços de dados para que se pudesse analisar como a dispersão dos dados ficariam nestes espaços novos. A quatro técnicas utilizadas foram o PCA, UMAP, t-SNE e modelos de regressão de árvore. Mais detalhes podem ser analisados dentro do script. O espaço selecionado foi o de árvore, porque apresentou os clusters mais densos e espaçados entre si, como demonstrado na figura abaixo.
+</p>
+<p><img src = "images/tree_embedded_space.png"></p>
+
+### Preparação de dados
+
+<p> Como todos os dados a serem utilizados para a clusterização foram numéricos, só será realizado o 'rescaling' dos mesmo e não o encoding, que é recomendado para dados categóricos. Como os dados possuem um distribuição bem diferente da normal e um grande número de outliers, foi utilizado o 'min-max-scaler'.
+</p>
 
 ### Seleção de atributos
 
-<p> A seleção de atributos foram utilizados dois algoritmos para escolher quais variáveis seriam utilizadas para treinar os modelos de aprendizagem de máquina. O primeiro algoritmo foi o Boruta e o segundo foi o MRMR (Maximum Relevance — Minimum Redundancy). Para determinar o algoritmo que será utilizado, mais adiante no projeto serão comparados o erros dos modelos gerados.
+<p>Para este projeto nenhuma técnica avançada de seleção de dados foi utilizada, somente foram escolhidas as colunas que não se baseam em médias. Porque em um ponto futuro do script, as médias para cada cluster serão realizadas, o que tornaria estas variáveis redundantes.
 </p>
 
 ### Modelos de Aprendizagem de Máquina
 
-<p> Os modelos selecionados como candidatos foram:
+<p> Os modelos de clusterização selecionados como candidatos foram:
 <ul>
   <li> K-Means</li>
   <li> Hierarchical Clustering </li>
@@ -79,104 +91,62 @@ Por esse motivo, o time de marketing requisitou ao time de dados uma seleção d
 
 Não é pertinente deste projeto entrar em detalhes de como cada algoritmo funciona.</p>
 
-<p>Os modelos serão treinados com os dados selecionados pelo Boruta e o MRMR, para verificar qual possui a melhor performance. O melhor modelo será selecionado de acordo com o RMSE e o tamanho do arquivo do modelo, que será gerado utilizando a biblioteca Pickle. </p>
+<p>Os modelos serão treinados com o espaço de dados gerado pelo espaço gerado pelo Random Forest na etapa de EDA. Os algoritmos foream testado para diferentes números de clusters e para cada combinação o valor da silhoueta do cluster foi salva em uma tabela, para realizar a comparação entre os modelos. A tabela abaixo  será resumida somente para os clusters com as maiores notas.</p>
+<p> Para o algoritmo DBSCAN foi testado 11 clusters e a nota de silhoueta foi de 0,48.</p>
 
-#### Performance dos modelos utilizando o Boruta
+#### Performance dos modelos para diferentes clusters
 
-| Nome do Modelo      |  MAE    | MAPE | RMSE    |
-|:-------------------:|:-------:|:----:|:-------:|
-| Regressão Linear    | 1966,81 | 0,31 | 2824,65 |
-| Reg. Linear - Lasso | 1991,63 | 0,31 | 2871,34 |
-| Random Forest       | 588,79  | 0,09 | 933,71  |
-| XGBoost             | 822,30  | 0,12 | 1196,85 |
+| Nome do Modelo         |  5      | 6    | 7       | 8    | 9       |
+|:----------------------:|:-------:|:----:|:-------:|:----:|:-------:|
+| K-Means                | 0,68    | 0,68 | 0,67    | 0,69 | 0,67    |
+| Hierarchical Clustering| 0,68    | 0,66 | 0,65    | 0,63 | 0,62    |
+| DBSCAN                 | 0,00    | 0,00 | 0,00    | 0,00 | 0,00    |
+| GMM                    | 0,68    | 0,67 | 0,65    | 0,62 | 0,61    |
 
-#### Performance dos modelos utilizando o MRMR
+<p> Para o estágio de produção do projeto, o modelos gerados na fase de análise foram salvos em arquivos no formato pickle e carregados no repositório S3, para serem utilizados de maneira remota, tirando a necessidade de realizar o treinamento do modelo.</p>
 
-| Nome do Modelo      |  MAE    | MAPE | RMSE    |
-|:-------------------:|:-------:|:----:|:-------:|
-| Regressão Linear    | 1998,47 | 0,31 | 2876,59 |
-| Reg. Linear - Lasso | 2007,33 | 0,31 | 2896,56 |
-| Random Forest       | 1111,28 | 0,17 | 1598,83 |
-| XGBoost             | 1183,50 | 0,18 | 1723,41 |
+### Treinamento do modelo e Análise dos Clusters
+<p>O modelo escolhido para a aplicação final foi o KMeans por possuir os melhores resultados. A quantidade de clusters a serem utilizadas no modelo foi de 10, porque será aproximadamente compatível com o modelo RFM para a divisão de estilos de compradores. Para esta quantidade de clusters, a nota de silhoueta foi de 0,68. Os perfis dos clusters foram os seguintes :</p>
+
+<p><img src = "images/Cluster_Profile.png"></p>
+<p>A tabela apresentda foi ordenada pela variável gross_revenue, ou receita.</p>
+<p>Uma representação gráfica de como ficaram os clusters pode ser vista na imagem abaixo.</p>
+<p><img src = "images/tree_embedded_space_clustred.png"></p>
+
+### Visualização dos resultados
+<p>Adcionar uma plataforma para visualização dos resutlados da clusterização é importante, porque os dados que estarão dentro do banco de dados serão constantemente atualizados e para evitar que novos relatório em notebook sejam gerados. A plataforma escolhida em questão foi o Microsoft Power BI, por ser uma ferramenta amplamente adotada no mercado.</p>
+<p><img src = "images/Relatorio_Clusterizacao.png"></p>
 
 
+### EDA - Pós Clusterização
 
-<p> De acordo com os valores das tabelas, os modelos recomendados seriam o Random Forest e o XGBoost com as variáveis selecionadas pelo Boruta.Mas o Random Forest quando salvo, gerou um modelo com o tamanho na casa das centenas de MB e o XGBoost gerou na casa das dezenas de MB. O tamanho do arquivo gerado é importante para a aplicação WEB que será gerada.</p>
-
-### Ajuste fino dos hiper parâmetros
-
-<p> O ajuste fino dos hiper parâmetros será realizado utilizando a otimização Bayesiana. Esta técnica de otimização vem do teorema de Bayes, na qual é possível determinar a probabilidade de um evento acontecer dada uma condição e baseando em uma informação prévia.
-Para uma explicação mais detalhada ler este artigo - <a href = "https://distill.pub/2020/bayesian-optimization/"> Bayesian Optimization</a></p>
-<p>Como o modelo de aprendizagem de máquina escolhido no parágrafo anterior foi XGBoost, o mesmo terá os parâmetros ajustados pela otimização Bayesiana. A tabela desta seção apresenta os resultados de error para o modelo.</p>
-
-| Nome do Modelo      |  MAE    | MAPE | RMSE    |
-|:-------------------:|:-------:|:----:|:-------:|
-| XGBoost - Ajustado  | 578,40  | 0,08 | 858,78  |
-
-## Insights de negócio
-
-<p>Nesta seção serão apresentados alguns insights de negócio que foram descobertos durante a exploração dos dados.
-
+<p>Nesta seção serão apresentadas respostas as perguntas realizadas pelo time de negócio que puderam ser respondidas após a clusterização dos dados. As perguntas e as respostas foram as seguintes:
 <ul>
+  <li> Quem são os clientes elegíveis para participar do programa de insiders ?</li>
+  <ul>
+    <li> 12583, 14688, 15311,  16029, 12341, ..</li>
+  </ul>
+  <li> Quantos clientes farão parte do grupo ?</li>
+  <ul>
+    <li> 648 clientes </li>
+  </ul>
+  <li> Quais as principais características desses clientes ? </li>
+  <ul>
+        <li> Número de clientes: 648</li>
+        <li> Gasto médio: R$ 9109.41 </li>
+        <li> Recência média: 31 dias</li>
+        <li> Quantidade média de devolução: 3</li>
 
-  <li> Lojas com maior sortimentos deveriam vender mais - FALSO </li>
-  <li> Lojas com competidores mais próximos deveriam vender menos - FALSO </li>
-  <li> Lojas com promoções por mais tempo deveriam vender mais - FALSO</li>
-  <li> Lojas abertas durante o feriado de Natal deveriam vender mais - FALSO</li>
-  <li> Lojas deveriam vender mais no final do ano - FALSO</li>
-  <li> Lojas deveriam vender mais depois do dia 10 de cada mês - VERDADEIRO</li>
-  <li> Lojas deveriam vender menos aos finais de semana - VERDADEIRO</li>
+  </ul>
+  <li> Qual a porcentagem de contribuição do faturamento, vinda do Insiders ?</li>
+  <ul>
+    <li> 4,67% </li>
+  </ul>
 </ul>
-
 </p>
-
-## Resultados
-
-### Performance do modelos
-<p>Primeiro será debatido a performance do modelo para as predições.
-Na primeira figura temos as varições de MAPE para cada loja dentro do dataset. Percebe-se que o valor máximo de MAPE sendo próximo dos 22,5% e o média está em torno de 7,5% para os modelos.  </p>
-
-
-<p><img src = "images/mapes_store.png"></p>
-
-<p> Na segunda imagem tem-se uma combinação de 4 imagens. A primeira é uma comparação dos valores de venda para o dataset de teste e o os valores gerados pelo modelo XGBoos. Na segunda figura tem-se a taxa de rro. Na terceira a distribuição dos erros e na quarta um gráfico de pontos para os valores absolutos de erro em relação as lojas.</p>
-
-<p><img src = "images/model_performance.png"></p>
-
-### Resultados de Negócio
-
-  <p>Agora serão analisados os resultados de negócio com valores monetários. De acordo com a tabela abaixo, o modelo foi capaz de prever que o valor somado de vendas para todas as lojas com, levando em consideração a variação do MAPE.
-  </p>
-
-
-  | **Cenário**     | **Valor Predição (R$)** |
-  |:---------------:|:-----------------------:|
-  | Predição        | 936.071.580,89          |
-  | Predição - MAPE | 935.225.007,35          |
-  | Predição + MAPE | 936.918.154,43          |
-
-  <p>Um dos pontos mais importantes do projeto seria a capacidade de prever o valor gerado por cada loja, para que os gerentes possam planejar as reformas da melhor maneira possível.
-  Na tabela abaixo há uma demonstração dos valores para as lojas até 10, que estam presentes no dataset.
-  </p>
-
-
-
-| **Loja**        | **Valor Predição (R$)** |
-|:---------------:|:-----------------------:|
-| 1               | 183.831,97              |
-| 3               | 264.979,76              |
-| 7               | 283.135,59              |
-| 8               | 230.571,40              |
-| 9               | 299.926,65              |
-| 10              | 227.134,88              |
-
-
-
+<p>Outras perguntas também foram realizadas, mas as mesmas não pertencem a esta etapa do projeto.</p>
 
 ## Próximos Passos
 
-  <p> Uma aplicação web simples foi montada de forma que requisições provenientes de um script Python possam ser utilizadas como forma de realizar a predição. Mas para uma aplicação futura, seria bom desenvolver uma interface web  para tornar o processo de requisição mais amigável.
-  </p>
-
-  <p> Um outro ponto a ser enfrentado em um próximo desenvolvimento, seria a realização do processo de cross validation para todos os modelos.
+  <p> Para os próximos passos deste proejto seria interessante refinar ainda mais os modelos de clusterização e realizar algum tipo de modelo de série temporal para poder prever o quanto será por clusters e traçar uma estratégia de marketing em cima desta informação.
   </p>
