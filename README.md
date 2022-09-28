@@ -36,7 +36,7 @@ Por esse motivo, o time de marketing requisitou ao time de dados uma seleção d
 </ul>
 </p>
 
-<p> Importante frisar que o prjeto foi divido em duas fases distintas, o desenvolvimento dos modelos de clusterização e análise dos dados. E a fase de produção, na qual o código foi embarcado em uym servidor Ubuntu para execução remota. Na fase de produção três produtos da AWS foram utilizados, o S3, que um repositório de arquivos, o RDS, que um banco de dados e o EC2, no qual é possível a criação de instâncias de servidor.E para que a execução do script acontecesse de forma automática, um arquivo bash foi criado com os comandos necessários para executar o notebook utilizando o pacote papermill. E o arquivo bash fo inserido em um cronjob para execução no mesmo horário de forma automática.</p>
+<p> Importante frisar que o prjeto foi divido em duas fases distintas, o desenvolvimento dos modelos de clusterização e análise dos dados. E a fase de produção, na qual o código foi embarcado em uym servidor Ubuntu para execução remota. Na fase de produção três produtos da AWS foram utilizados, o S3, que um repositório de arquivos, o RDS, que um banco de dados e o EC2, no qual é possível a criação de instâncias de servidor.E para que a execução do script acontecesse de forma automática, um arquivo bash foi criado com os comandos necessários para executar o notebook utilizando o pacote papermill. E o arquivo bash foi inserido em um cronjob para execução no mesmo horário de forma automática.</p>
 
 ### Coleta e Preparação
 
